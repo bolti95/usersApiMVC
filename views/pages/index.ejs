@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <%- include('../partials/head.ejs'); %>
+    </head>
+    <body>
+        <header>
+            <%- include('../partials/header.ejs'); %>
+        </header>
+        <main>
+            <h1>
+                Users API
+            </h1>
+            <div>
+                <p><%= message %></p>
+                <p>
+                    Hi, to create a user
+                </p>
+                <a class="nav-link" href="/api/users/signup">sign up</a>
+            </div>
+
+            <div>
+                <p>
+                    Hi, to log in as a user
+                </p>
+                <a class="nav-link" href="/api/users/login">log in</a>
+            </div>
+        </main>
+        <footer>
+            <%- include('../partials/footer.ejs'); %>
+        </footer>
+    </body>
+</html>
+
+
+
+
+
+

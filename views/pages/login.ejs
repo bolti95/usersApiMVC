@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <%- include('../partials/head.ejs'); %>
+    </head>
+    <body>
+    <header>
+         <%- include('../partials/header.ejs'); %>
+    </header>
+    <main>
+        <h1>Log into your account</h1>
+        <p><%= message %></p>
+        <form action="/api/users/login" method="POST">
+            <div>
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username"
+                required
+                >
+            </div>
+            <div>
+                <label for="name">Password</label>
+                <input type="text" id="attempt" name="attempt"
+                required
+                >
+            </div>
+            <div>
+                <input type="submit" id="login" name="login">
+            </div>
+        </form>
+    </main>
+    <footer>
+        <%- include('../partials/footer.ejs'); %>
+    </footer>
+    </body>
+</html>

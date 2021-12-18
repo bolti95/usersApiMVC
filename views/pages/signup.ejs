@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <%- include('../partials/head.ejs'); %>
+    </head>
+    <body>
+    <header>
+         <%- include('../partials/header.ejs'); %>
+    </header>
+    <h1>Sign up, become a user</h1>
+    <p><%= message %></p>
+    <form action="/api/users/signup" method="POST">
+        <div>
+            <label for="username">Create your username</label>
+            <input type="text" id="username" name="username"
+            required
+            >
+        </div>
+        <div>
+            <label for="email">Email</label>
+            <input type="text" id="email" name="email"
+            required
+            >
+        </div>
+        <div>
+            <label for="name">Password</label>
+            <input type="text" id="password" name="password"
+            required
+            >
+        </div>
+        <div>
+            <input type="submit" id="submit" name="submit">
+        </div>
+    </form>
+    <footer>
+        <%- include('../partials/footer.ejs'); %>
+    </footer>
+</body>
+</html>
