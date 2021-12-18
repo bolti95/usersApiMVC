@@ -7,10 +7,8 @@ const PORT = process.env.PORT || 3005;
 
 const indexRouter = require("./routes/index");
 const usersRouter = require("./routes/users");
-const connectDB = require("./config/db");
+// const connectDB = require("./config/db");
 const authConfig = require("./config/auth");
-
-connectDB();
 
 const app  = express();
 // set our default template engine to "ejs"

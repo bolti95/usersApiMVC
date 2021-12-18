@@ -1,12 +1,14 @@
 const Users = require("../models/User");
 require('dotenv').config();
 const bcrypt = require("bcrypt");
+const connectDB = require("../config/db");
 
 exports.signup_get = (req, res) => {
     res.status(200).render('pages/signup.ejs', {message: ""});
 }
 
 exports.signup_post = async (req, res) => {
+    connectDB();
     const {username, email, password }  = req.body;
     console.log(username, email, password);
     let existingUser = await Users.checkExists(username, email);
@@ -31,6 +33,7 @@ exports.login_get = (req, res) => {
 }
 
 exports.login_post = async (req, res) => {
+    connectDB();
     const { username, attempt } = req.body;
     const user = await Users.compareUser(username);
     const valid = await Users.checkPassword(attempt, user.password) 
@@ -51,6 +54,7 @@ exports.delete_user_get = async (req, res) => {
     res.status(200).render('pages/delete.ejs', {message: ""})
 }
 exports.delete_user = async (req, res) => {
+    connectDB();
     const { username, attempt } = req.body;
     console.log(username)
     const user = await Users.compareUser(username);
@@ -64,6 +68,7 @@ exports.delete_user = async (req, res) => {
 
 
 exports.user_read = (req, res) => {
+    connectDB();
     const user = Users.find(x => x.id === parseInt(req.params.id));
     if (!user) res.status(404).send("The user with this ID does not exist")// 404, object not found. If resource does not exist.
     res.send(user)

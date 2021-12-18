@@ -24,6 +24,7 @@ router.get("/delete/:username", user_controller.delete_user_get);
 //     res.redirect(res.redirect(301, "delete/"));
 // });
 router.post("/delete/:username", user_controller.delete_user);
+router.delete("/delete/:username", user_controller.delete_user);
 
 
 module.exports = router;

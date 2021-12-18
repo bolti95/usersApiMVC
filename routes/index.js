@@ -3,7 +3,7 @@ var router = express.Router();
 
 router.get("/", (req, res) => {
     // console.log(req.oidc.isAuthenticated());
-    res.render('pages/index.ejs', { user: ""},{message: ""})
+    res.statusCode(200).render('pages/index.ejs', { user: ""},{message: ""})
     // get user from model
 });
 
