@@ -5,7 +5,7 @@ const request = require("supertest");
 // const router = require('../routes/index');
 // const router = require('../routes/users');
 
-describe('Test handlers', function () {
+describe('GET router handlers', function () {
     test('/GET Signup respond with 200 code', async () => {
         const response = await request(app).get("/api/users/signup"); 
         expect(response.statusCode).toBe(200)

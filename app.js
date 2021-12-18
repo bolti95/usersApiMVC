@@ -3,7 +3,6 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const path = require("path");
 const { auth } = require("express-openid-connect");
-const PORT = process.env.PORT || 3005;
 
 const indexRouter = require("./routes/index");
 const usersRouter = require("./routes/users");
