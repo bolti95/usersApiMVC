@@ -12,7 +12,7 @@ const app  = express();
 
 app.use(session({
   // TODO
-  // sess in production
+  // secret, stores session secret
   secret: process.env.APP_SESSION_SECRET,
   resave: false,
   saveUninitialized: true,
@@ -32,13 +32,15 @@ app.set('views', path.join(__dirname, 'views'));
 
 // middleware, method returns middleware
 // used in request
-//query strings and post type payloads that might contain json
+//body-parser extracts the entire body portion 
+//of an incoming request stream and exposes it on req. body .
 //url encoded query strings. Extended data, so we can handled 
 //nested data coming in query strings
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-//auth router attaches /login, /logout and /callback router to baseURL
+
 // app.use(auth(authConfig));
+// look up what below means
 app.use(function(req, res, next) {
     res.header(
       "Access-Control-Allow-Headers",
@@ -46,6 +48,9 @@ app.use(function(req, res, next) {
     );
     next();
 });
+
+// enabled routes so client can speak to the server
+// appended api to / so identified as api
 app.use("/api", indexRouter);
 app.use("/api/users", usersRouter);
 

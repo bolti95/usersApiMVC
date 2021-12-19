@@ -10,7 +10,7 @@
     <main>
         <h1>Delete your account</h1>
         <p><%= message %></p>
-        <form action="/api/users/profile/:id" method="POST">
+        <form action="/api/users/delete/:username" method="DELETE">
             <div>
                 <label for="username">Username</label>
                 <input type="text" id="username" name="username"

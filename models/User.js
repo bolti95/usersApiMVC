@@ -14,13 +14,13 @@ const user = Schema({
 // Mongo docs https://mongoosejs.com/docs/2.7.x/docs/methods-statics.html
 user.statics.checkExists = async function(username) {
 	let user = await this.findOne({ username });
-    if (user === username) {
+    console.log("the user")
+    if (!user) {
         console.log(user)
         return true
     } else {
         return false
     }
-	//
 }
 
 user.statics.compareUser = async function(username) {
