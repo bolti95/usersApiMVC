@@ -1,31 +1,46 @@
-const Users = require("../models/User");
 require('dotenv').config();
-const bcrypt = require("bcrypt");
+const config = require("../config/auth");
 const connectDB = require("../config/db");
+// const authController = require("./authController");
+connectDB();
+const Users = require("../models/User");
+const querystring = require('querystring');
+const jwt = require("jsonwebtoken");
+const bcrypt = require("bcrypt");
 
 exports.signup_get = (req, res) => {
     res.status(200).render('pages/signup.ejs', {message: ""});
 }
 
 exports.signup_post = async (req, res) => {
-    connectDB();
     const {username, email, password }  = req.body;
     console.log(username, email, password);
-    let existingUser = await Users.checkExists(username, email);
-    if (existingUser) {
-        return res.render('pages/signup.ejs', {message : 'Unsuccessful. A user with this email already exists.'})
+    let uniqueUser = await Users.checkExists(username, email);
+    if ({username, email, password } === "") {
+        return res.render('pages/signup.ejs', {message : 'Unsuccessful. One or more values is blank.'})
     }
+    if (!uniqueUser) {
+        return res.send({message : 'Unsuccessful. A user with this email already exists.'}) 
+    }  
     const hash = bcrypt.hash(password, 12)
     const user = new Users ({
-        // id: Users.length + 1,
         username: username.toLowerCase(),
-        email: email,
+        email: email.toLowerCase(),
         password: await hash,
+        // isLoggedIn: false
         // createdAt: new Date(), set in schema
     });
-    console.log(user)
     user.save();
-    res.status(200).res.render('pages/signup.ejs', {message : 'Successful sign up!'})
+    var token = jwt.sign({ id: user._id}, config.secret, {
+        expiresIn: 86400 // expires in 24hrs
+    })
+    req.session.token = token
+    res.status(200).send({message: "successfully signed up the user!"})
+    // return res.redirect(301, "profile/:username")
+    // res.redirect('pages/signup.ejs', {
+    //     message : 'Successful sign up!', 
+    // })
+// } 
 }
 
 exports.login_get = (req, res) => {
@@ -33,51 +48,119 @@ exports.login_get = (req, res) => {
 }
 
 exports.login_post = async (req, res) => {
-    connectDB();
-    const { username, attempt } = req.body;
+    const { username, attempt} = req.body;
+    console.log(username, attempt, token)
     const user = await Users.compareUser(username);
     const valid = await Users.checkPassword(attempt, user.password) 
+    const id = user._id
     if (!valid) {
-        return res.render("pages/login.ejs",  {message: "Does not match"})  
+        return res.render("pages/login.ejs",  {
+            message: "Does not match",
+            // accessToken: null
+        })  
     }
-    // next()
-    res.redirect(301, "profile/")
+    var token = jwt.sign({ id: user._id}, config.secret, {
+        expiresIn: 86400, // expires in 24hrs
+        // accessToken: 
+    })
+    console.log("this is the token " + token)
+    req.session.token = token
+    req.session.id = user._id;
+    req.session.username = user.username
+    if (!token) {
+        return res.redirect("/login");
+    }
+    return res.redirect(301, "profile/:username")
+    // TODO 
+    // change User.isLoggedIn into sessionID
+    // req.session.save();
+    // }) 
+    // res.send({
+    //     id: user._id,
+    //     accessToken: token
+    // })
 }
 
-
-exports.logout_post = (req, res) => {
+exports.logout_get = (req, res) => {
     //destroy a user session
     //set logged in to false
 }
 
 exports.delete_user_get = async (req, res) => {
+    // install sessions to get user name, or query, or match token
     res.status(200).render('pages/delete.ejs', {message: ""})
 }
 exports.delete_user = async (req, res) => {
-    connectDB();
-    const { username, attempt } = req.body;
-    console.log(username)
-    const user = await Users.compareUser(username);
-    const _id = user._id
-    console.log("trying to delete...")
-    await Users.findByIdAndDelete( _id )
-    console.log("success!")
-    res.redirect(301, "/")
+    const queryUsername = req.query.username;
+    const queryPassword = req.query.password;
+    console.log(queryUsername, queryPassword)
+    const user = await Users.compareUser(queryUsername);
+    console.log(user.username)
+    const valid = await Users.checkPassword(queryPassword, user.password) 
+    if (!valid) {
+        return res.render("pages/login.ejs",  {
+            message: "Does not match",
+            accessToken: null
+        }) 
+    }    
     // auth with password, if !password, don't let them delete
+    await Users.findByIdAndDelete( user._id )
+    console.log("Successfully deleted!")
+    res.send({message: `deleted user ${user.username}`})
+
+    // To add auth
+    // jwt.verify(token, config.secret, (err, decoded) => {
+    //     if (err) {
+    //         console.log(err.message)
+    //         res.redirect("/login");
+    //     } else {
+    //         console.log(decoded)
+    //         req.session.id = id;
+    //         req.session.username = user.username
+    //         req.session.token = token
+    //         res.redirect(301, "profile/:username")
+    //     }
+    // })
 }
 
 
-exports.user_read = (req, res) => {
-    connectDB();
-    const user = Users.find(x => x.id === parseInt(req.params.id));
+exports.user_read = async (req, res) => {
+    const query = req.query.username;
+    console.log(query)
+    const user = await Users.compareUser(query);
+    // const found = Users.find(x => x._id === parseInt(user._id));
     if (!user) res.status(404).send("The user with this ID does not exist")// 404, object not found. If resource does not exist.
     res.send(user)
-
 }
 
 exports.profile_get = (req, res) => {
+    const username = req.body.username
+    // const username = Users.findById(username);
+    res.status(200).render("pages/profile.ejs", {
+        id: req.session._id, 
+        username: username
+    })
+    // const {id, token, username} = req.body.id
+    // const token = req.body.token
+    // const username = req.session.username;
+    // const id = req.session.id;
+    // const token = req.session.token;
+    // console.log(req.session.id)
+    // Users.findById(req.session.id)
+    // jwt.verify(token, config.secret, function(err, decoded) {
+    //     if (err) return res.status(500).send({auth : false, message: "Failed to authenticate."})
+    //     User.findById(decoded._id,{
+    //         password: 0, //protect
+    //         function (err, user) {
+    //             if (err) return res.status(500).send("Could not find user.");
+    //             if (!user) return res.status(404).send("User does not exist");
+    //             next(user)
+    //         }
+    //     }) 
+
+    // }) 
+
     // const username = req.body get user from user model session ID
-    res.status(200).render("pages/profile.ejs")
 }
 
 exports.profile_post = (req, res) => {
