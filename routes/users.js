@@ -1,5 +1,6 @@
 var express = require("express");
 var router = express.Router();
+var auth = require("../config/auth.js");
 var user_controller = require("../controllers/userController.js");
 
 router.get("/", (req, res) => {
@@ -17,14 +18,13 @@ router.post("/login", user_controller.login_post)
 router.get("/read/:id", user_controller.user_read)
 router.put("/update/:id", (req, res) => {});
 
-router.get("/profile/", user_controller.profile_get);
-
+router.get("/profile/:id", user_controller.profile_get);
 router.get("/delete/:username", user_controller.delete_user_get);
 // router.get("/delete/:username", (req, res) => {
 //     res.redirect(res.redirect(301, "delete/"));
 // });
 router.post("/delete/:username", user_controller.delete_user);
-router.delete("/profile/:id", user_controller.delete_user);
+router.delete("/delete/:username", user_controller.delete_user);
 
 
 module.exports = router;
