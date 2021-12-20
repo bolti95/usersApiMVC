@@ -1,7 +1,7 @@
 require('dotenv').config();
 const config = require("../config/auth");
 const connectDB = require("../config/db");
-// const authController = require("./authController");
+const authController = require("./authController");
 connectDB();
 const Users = require("../models/User");
 const querystring = require('querystring');
@@ -31,11 +31,10 @@ exports.signup_post = async (req, res) => {
         // createdAt: new Date(), set in schema
     });
     user.save();
-    var token = jwt.sign({ id: user._id}, config.secret, {
-        expiresIn: 86400 // expires in 24hrs
+    // req.session.token = token
+    res.status(200).send({
+        message: "successfully signed up the user!"
     })
-    req.session.token = token
-    res.status(200).send({message: "successfully signed up the user!"})
     // return res.redirect(301, "profile/:username")
     // res.redirect('pages/signup.ejs', {
     //     message : 'Successful sign up!', 
@@ -64,13 +63,20 @@ exports.login_post = async (req, res) => {
         // accessToken: 
     })
     console.log("this is the token " + token)
-    req.session.token = token
-    req.session.id = user._id;
-    req.session.username = user.username
+    // req.session.token = token
+    // req.session.id = user._id;
+    // req.session.username = user.username
     if (!token) {
         return res.redirect("/login");
     }
-    return res.redirect(301, "profile/:username")
+    res.status(200).send({
+        id: user._id,
+        username: user.username,
+        email: user.email,
+        accessToken: token
+    });
+    // res.redirect(301, "profile/:username")
+    // next()
     // TODO 
     // change User.isLoggedIn into sessionID
     // req.session.save();
@@ -109,18 +115,7 @@ exports.delete_user = async (req, res) => {
     res.send({message: `deleted user ${user.username}`})
 
     // To add auth
-    // jwt.verify(token, config.secret, (err, decoded) => {
-    //     if (err) {
-    //         console.log(err.message)
-    //         res.redirect("/login");
-    //     } else {
-    //         console.log(decoded)
-    //         req.session.id = id;
-    //         req.session.username = user.username
-    //         req.session.token = token
-    //         res.redirect(301, "profile/:username")
-    //     }
-    // })
+
 }
 
 
@@ -134,6 +129,20 @@ exports.user_read = async (req, res) => {
 }
 
 exports.profile_get = (req, res) => {
+    var authorise = authController.verify_token 
+    console.log(authorise);
+        // jwt.verify(token, config.secret, (err, decoded) => {
+    //     if (err) {
+    //         console.log(err.message)
+    //         res.redirect("/login");
+    //     } else {
+    //         console.log(decoded)
+    //         req.session.id = id;
+    //         req.session.username = user.username
+    //         req.session.token = token
+    //         res.redirect(301, "profile/:username")
+    //     }
+    // })
     const username = req.body.username
     // const username = Users.findById(username);
     res.status(200).render("pages/profile.ejs", {

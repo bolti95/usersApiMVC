@@ -3,13 +3,20 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const session = require("express-session");
 const path = require("path");
-const { auth } = require("express-openid-connect");
+// const { auth } = require("express-openid-connect");
 
 const indexRouter = require("./routes/index");
 const usersRouter = require("./routes/users");
 // const connectDB = require("./config/db");
 const app  = express();
-
+// look up what below means
+app.use(function(req, res, next) {
+  res.header(
+    "Access-Control-Allow-Headers",
+    "x-access-token, Origin, Content-Type, Accept"
+  );
+  next();
+});
 app.use(session({
   // TODO
   // secret, stores session secret
@@ -38,16 +45,6 @@ app.set('views', path.join(__dirname, 'views'));
 //nested data coming in query strings
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-
-// app.use(auth(authConfig));
-// look up what below means
-app.use(function(req, res, next) {
-    res.header(
-      "Access-Control-Allow-Headers",
-      "x-access-token, Origin, Content-Type, Accept"
-    );
-    next();
-});
 
 // enabled routes so client can speak to the server
 // appended api to / so identified as api
